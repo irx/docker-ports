@@ -1,0 +1,5 @@
+This is a docker-based ports collection.
+A convenient way of installing sandboxed programs.
+
+Install:
+	make -C <package> install
