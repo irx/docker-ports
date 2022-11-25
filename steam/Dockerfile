@@ -1,7 +1,8 @@
+FROM ubuntu:18.04
+
 ARG USER_UID=1000
 ARG USER_GID=1000
 ARG AUDIO_GID=18
-FROM ubuntu:18.04
 
 # Updates apt-get lists
 RUN echo "Installing packages..." && \
