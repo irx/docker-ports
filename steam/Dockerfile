@@ -1,5 +1,6 @@
 FROM archlinux:latest
 
+ARG NVIDIA_DRIVER=470.103.01
 ARG VIDEO_GID=27
 ARG AUDIO_GID=18
 
@@ -9,9 +10,6 @@ RUN pacman -Sy --noconfirm \
 	mandoc \
 	doas \
 	wine \
-	lib32-mesa \
-	mesa \
-	nss \
 	gnutls \
 	lib32-alsa-plugins \
 	lib32-gnutls \
@@ -20,11 +18,15 @@ RUN pacman -Sy --noconfirm \
 	lib32-libldap \
 	lib32-libpulse \
 	lib32-mesa \
+	lib32-mesa \
 	lib32-openal \
 	lib32-sqlite \
 	lib32-vulkan-icd-loader \
 	lib32-vulkan-intel \
 	lib32-vulkan-radeon \
+	mesa \
+	nss \
+	qt5-base \
 	samba \
 	vulkan-icd-loader \
 	vulkan-intel \
@@ -32,9 +34,12 @@ RUN pacman -Sy --noconfirm \
 	vulkan-tools \
 	winetricks \
 	xf86-video-amdgpu \
-	zenity \
-	qt5-base
+	zenity
 RUN echo 'permit nopass root' > /etc/doas.conf
+
+RUN test -n "${NVIDIA_DRIVER}" || ( echo "Please provide nvidia driver version" && exit 1 )
+ADD https://uk.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER}.run /tmp/NVIDIA.run
+RUN sh /tmp/NVIDIA.run --help && sh /tmp/NVIDIA.run -a -N --ui=none --no-kernel-module
 
 RUN awk -F ":" "{ if (\$3 == \"${AUDIO_GID}\") {print \$1; exit 0;} }" </etc/group | xargs groupdel || :
 RUN awk -F ":" "{ if (\$3 == \"${VIDEO_GID}\") {print \$1; exit 0;} }" </etc/group | xargs groupdel || :

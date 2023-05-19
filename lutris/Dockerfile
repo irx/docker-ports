@@ -36,6 +36,8 @@ RUN pacman -Sy --noconfirm \
 	qt5-base
 RUN echo 'permit nopass root' > /etc/doas.conf
 
+ENV VIDEO_GID=27
+ENV AUDIO_GID=18
 RUN groupdel video && groupadd -g ${VIDEO_GID} video
 RUN groupdel audio && groupadd -g ${AUDIO_GID} audio
 
