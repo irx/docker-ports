@@ -11,6 +11,7 @@ build:
 		--build-arg USER_GID="$$(id -g)" \
 		--build-arg VIDEO_GID="$$(getent group video | cut -d: -f3)" \
 		--build-arg AUDIO_GID="$$(getent group audio | cut -d: -f3)" \
+		--build-arg DIALOUT_GID="$$(getent group dialout | cut -d: -f3)" \
 		-t ${PORTNAME}:${PORTVERSION} .
 
 install: build
