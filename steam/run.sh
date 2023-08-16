@@ -18,6 +18,10 @@ docker run --rm -it \
 	-e "DISPLAY" \
 	-e "XAUTHORITY=${XAUTH}" \
 	-e "TZ=$(date +%Z)" \
+	--ulimit nofile=262144:262144 \
+	--ulimit core=-1 \
+	--ulimit data=-1 \
+	--ulimit fsize=-1 \
 	-v "${STEAM_DIR}:/home/steam" \
 	-v "/dev/shm:/dev/shm" \
 	-v "${XSOCK}:${XSOCK}" \

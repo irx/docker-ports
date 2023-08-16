@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 ARG NVIDIA_DRIVER=470.103.01
 ARG VIDEO_GID=27
@@ -12,10 +12,11 @@ RUN test -n "${NVIDIA_DRIVER}" || ( echo "Please provide nvidia driver version" 
 ADD https://repo.steampowered.com/steam/archive/precise/steam_latest.deb /tmp/steam.deb
 ADD https://uk.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER}.run /tmp/NVIDIA.run
 RUN dpkg --add-architecture i386 && apt-get update &&  apt-get install -y \
-	libgl1-mesa-dri:i386 libgl1-mesa-glx:i386 libc6:i386 module-init-tools
+	libgl1-mesa-dri:i386 libgl1-mesa-glx:i386 libc6:i386 kmod
 RUN sh /tmp/NVIDIA.run --help
 RUN apt-get install -y /tmp/steam.deb \
 	&& sh /tmp/NVIDIA.run -a -N --ui=none --no-kernel-module
+RUN apt-get install lsof
 
 RUN groupdel sudo # likely collides with video
 RUN groupdel video && groupadd -g ${VIDEO_GID} video
