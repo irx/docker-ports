@@ -18,14 +18,14 @@ docker run -it --rm \
 	-e DISPLAY=$DISPLAY \
 	-e "XAUTHORITY=${XAUTH}" \
 	-e "TZ=$(date +%Z)" \
-	-v "${STEAM_DIR}:/home/steam" \
-	-v "/dev/shm:/dev/shm" \
-	-v "${XSOCK}:${XSOCK}" \
-	-v "${XAUTH}:${XAUTH}" \
 	--ulimit nofile=524288:524288 \
 	--ulimit core=-1 \
 	--ulimit data=-1 \
 	--ulimit fsize=-1 \
+	-v "${STEAM_DIR}:/home/steam" \
+	-v "/dev/shm:/dev/shm" \
+	-v "${XSOCK}:${XSOCK}" \
+	-v "${XAUTH}:${XAUTH}" \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	-v /mnt/aux/steam:/home/steam \
 	-v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket \
