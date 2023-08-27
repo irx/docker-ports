@@ -2,6 +2,7 @@ FROM ubuntu:18.04
 
 ARG USER_UID=1000
 ARG USER_GID=1000
+ARG VIDEO_GID=27
 ARG AUDIO_GID=18
 
 # Updates apt-get lists
@@ -14,7 +15,8 @@ RUN apt-get install -y curl apt-utils \
 	libasound2 libatk-bridge2.0-0 libcairo2 libcups2 libgdk-pixbuf2.0-0 \
 	libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 \
 	libsecret-1-0 libx11-xcb1 libxcomposite1 libxcomposite1 \
-	libxss1 apt-transport-https libxkbfile1 alsa-utils apulse
+	libxss1 apt-transport-https libxkbfile1 alsa-utils apulse \
+	lsof policykit-1 udev
 
 # Downloads and installs Steam .deb
 RUN echo "Installing Steam..." && \
@@ -23,9 +25,16 @@ RUN echo "Installing Steam..." && \
     rm -rf /tmp/*
 
 # Creates a new user
-RUN echo "Creating User..." && \
+#RUN	groupadd -g ${USER_GID} steam && \
+#    useradd -u ${USER_UID} -g ${USER_GID} -ms /bin/bash steam
+RUN	groupadd -g ${USER_GID} steam && \
     useradd -u ${USER_UID} -g ${USER_GID} -ms /bin/bash steam
-RUN groupadd -g ${AUDIO_GID} audioh && usermod -aG audio,audioh,video,sudo steam
+RUN awk -F ":" "{ if (\$3 == \"${AUDIO_GID}\") {print \$1; exit 0;} }" </etc/group | xargs groupdel || :
+RUN awk -F ":" "{ if (\$3 == \"${VIDEO_GID}\") {print \$1; exit 0;} }" </etc/group | xargs groupdel || :
+RUN groupdel audio || : ; groupdel video || : ; \
+	groupadd -g ${AUDIO_GID} audio \
+	&& groupadd -g ${VIDEO_GID} video \
+	&& usermod -aG audio,video steam
 
 USER steam
 ENV HOME /home/steam
