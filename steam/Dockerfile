@@ -1,42 +1,47 @@
-FROM ubuntu:18.04
+FROM archlinux:latest
 
-ARG USER_UID=1000
-ARG USER_GID=1000
 ARG VIDEO_GID=27
 ARG AUDIO_GID=18
 
-# Updates apt-get lists
-RUN echo "Installing packages..." && \
-    dpkg --add-architecture i386 && \
-    sed 's/main$/main universe/' -i /etc/apt/sources.list && \
-    apt-get update && \
-    apt-get install -y wget curl python python-apt xterm xz-utils zenity libasound2 libgl1-mesa-dri:i386 libgl1-mesa-glx:i386 libc6:i386 libnss3 python3-apt xdg-desktop-portal xdg-desktop-portal-gtk libvulkan1 vulkan-utils mesa-vulkan-drivers libvulkan1:i386 mesa-vulkan-drivers:i386
-RUN apt-get install -y curl apt-utils \
-	libasound2 libatk-bridge2.0-0 libcairo2 libcups2 libgdk-pixbuf2.0-0 \
-	libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 \
-	libsecret-1-0 libx11-xcb1 libxcomposite1 libxcomposite1 \
-	libxss1 apt-transport-https libxkbfile1 alsa-utils apulse \
-	lsof policykit-1 udev
+RUN printf '[multilib]\nInclude = /etc/pacman.d/mirrorlist\n' >> /etc/pacman.conf
+RUN pacman -Sy --noconfirm \
+	steam \
+	mandoc \
+	doas \
+	wine \
+	lib32-mesa \
+	mesa \
+	nss \
+	gnutls \
+	lib32-alsa-plugins \
+	lib32-gnutls \
+	lib32-gstreamer \
+	lib32-libgpg-error \
+	lib32-libldap \
+	lib32-libpulse \
+	lib32-mesa \
+	lib32-openal \
+	lib32-sqlite \
+	lib32-vulkan-icd-loader \
+	lib32-vulkan-intel \
+	lib32-vulkan-radeon \
+	samba \
+	vulkan-icd-loader \
+	vulkan-intel \
+	vulkan-radeon \
+	vulkan-tools \
+	winetricks \
+	xf86-video-amdgpu \
+	zenity \
+	qt5-base
+RUN echo 'permit nopass root' > /etc/doas.conf
 
-# Downloads and installs Steam .deb
-RUN echo "Installing Steam..." && \
-    wget https://steamcdn-a.akamaihd.net/client/installer/steam.deb -O /tmp/steam.deb -q && \
-    dpkg -i /tmp/steam.deb && \
-    rm -rf /tmp/*
-
-# Creates a new user
-#RUN	groupadd -g ${USER_GID} steam && \
-#    useradd -u ${USER_UID} -g ${USER_GID} -ms /bin/bash steam
-RUN	groupadd -g ${USER_GID} steam && \
-    useradd -u ${USER_UID} -g ${USER_GID} -ms /bin/bash steam
 RUN awk -F ":" "{ if (\$3 == \"${AUDIO_GID}\") {print \$1; exit 0;} }" </etc/group | xargs groupdel || :
 RUN awk -F ":" "{ if (\$3 == \"${VIDEO_GID}\") {print \$1; exit 0;} }" </etc/group | xargs groupdel || :
 RUN groupdel audio || : ; groupdel video || : ; \
 	groupadd -g ${AUDIO_GID} audio \
-	&& groupadd -g ${VIDEO_GID} video \
-	&& usermod -aG audio,video steam
+	&& groupadd -g ${VIDEO_GID} video
 
-USER steam
-ENV HOME /home/steam
-WORKDIR /home/steam
-CMD /usr/bin/steam
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["steam"]
