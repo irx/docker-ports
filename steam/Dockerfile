@@ -2,6 +2,7 @@ FROM archlinux:latest
 
 ARG VIDEO_GID=27
 ARG AUDIO_GID=18
+ARG INPUT_GID=97
 
 RUN printf '[multilib]\nInclude = /etc/pacman.d/mirrorlist\n' >> /etc/pacman.conf
 RUN pacman -Sy --noconfirm \
@@ -38,9 +39,11 @@ RUN echo 'permit nopass root' > /etc/doas.conf
 
 RUN awk -F ":" "{ if (\$3 == \"${AUDIO_GID}\") {print \$1; exit 0;} }" </etc/group | xargs groupdel || :
 RUN awk -F ":" "{ if (\$3 == \"${VIDEO_GID}\") {print \$1; exit 0;} }" </etc/group | xargs groupdel || :
-RUN groupdel audio || : ; groupdel video || : ; \
+RUN awk -F ":" "{ if (\$3 == \"${INPUT_GID}\") {print \$1; exit 0;} }" </etc/group | xargs groupdel || :
+RUN groupdel audio || : ; groupdel video || : ; groupdel input || : ; \
 	groupadd -g ${AUDIO_GID} audio \
-	&& groupadd -g ${VIDEO_GID} video
+	&& groupadd -g ${VIDEO_GID} video \
+	&& groupadd -g ${INPUT_GID} input
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
