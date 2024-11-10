@@ -35,6 +35,11 @@ RUN pacman -Sy --noconfirm \
 	xf86-video-amdgpu \
 	zenity \
 	qt5-base
+# install pipx for protontricks
+RUN pacman -Sy --noconfirm python-pip python-pipx python-setuptools python-virtualenv
+# to install protontricks exec bash in running container and run:
+# # su - user
+# % pipx install protontricks
 RUN echo 'permit nopass root' > /etc/doas.conf
 
 RUN awk -F ":" "{ if (\$3 == \"${AUDIO_GID}\") {print \$1; exit 0;} }" </etc/group | xargs groupdel || :
