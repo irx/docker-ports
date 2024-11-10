@@ -4,6 +4,7 @@ ARG VIDEO_GID=27
 ARG AUDIO_GID=18
 
 RUN printf '[multilib]\nInclude = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf
+RUN pacman -Syu --noconfirm
 RUN pacman -Sy --noconfirm \
 	lutris \
 	mandoc \

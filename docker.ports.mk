@@ -7,6 +7,8 @@ info:
 
 build:
 	${DOCKER} build \
+		--pull \
+		--no-cache \
 		--build-arg USER_UID="$$(id -u)" \
 		--build-arg USER_GID="$$(id -g)" \
 		--build-arg VIDEO_GID="$$(getent group video | cut -d: -f3)" \
